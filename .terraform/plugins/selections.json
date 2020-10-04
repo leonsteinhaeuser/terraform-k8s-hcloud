@@ -1,0 +1,10 @@
+{
+  "registry.terraform.io/hashicorp/kubernetes": {
+    "hash": "h1:vtQXp7JbWIROttwbC6blw4rrkIyeaXnCO5OeAUQbn34=",
+    "version": "1.13.1"
+  },
+  "registry.terraform.io/hetznercloud/hcloud": {
+    "hash": "h1:QvmxHzvw+lFy33gafCxfjS9BAtwkuoTGbKhPHdPmF+I=",
+    "version": "1.20.1"
+  }
+}
