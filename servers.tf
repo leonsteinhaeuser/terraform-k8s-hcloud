@@ -6,33 +6,79 @@
 
 resource "hcloud_server" "k8s_nodes_master" {
   count       = var.k8s_master_count
-  name        = format("%s-%d", var.k8s_master_machine_prefix, count.index)
+  name        = format("%s-%d", var.k8s_master_machine_prefix, count.index + 1)
   server_type = var.k8s_master_machine_type
   image       = var.k8s_machine_operation_system
   #datacenter  = var.k8s_hetzner_datacenter
   #datacenter  = "fsn1"
   backups     = var.k8s_machine_master_backups
+  ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
 
   connection {
+    host        = self.ipv4_address
     user        = "root"
     type        = "ssh"
-    private_key = file(var.ssh_private_key_location)
+    private_key = file(var.ssh_private_key)
+  }
+
+  provisioner "file" {
+    source      = "scripts/install.sh"
+    destination = "/root/install.sh"
+  }
+
+  provisioner "file" {
+    source = "configs/kubeadm.conf"
+    destination = "/root/kubeadm.conf"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["bash /root/install.sh"]
+  }
+
+  provisioner "file" {
+    source = "scripts/init-cluster.sh"
+    destination = "/root/init-cluster.sh"
+  }
+
+  # provisio
+  provisioner "remote-exec" {
+    inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range}"]
   }
 }
 
 resource "hcloud_server" "k8s_nodes_worker" {
   count       = var.k8s_worker_count
-  name        = format("%s-%d", var.k8s_worker_machine_prefix, count.index)
+  name        = format("%s-%d", var.k8s_worker_machine_prefix, count.index + 1)
   server_type = var.k8s_worker_machine_type
   image       = var.k8s_machine_operation_system
   #datacenter  = var.k8s_hetzner_datacenter
   #datacenter  = "fsn1"
   backups     = var.k8s_machine_worker_backups
+  ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
 
   connection {
+    host        = self.ipv4_address
     user        = "root"
     type        = "ssh"
-    private_key = file(var.ssh_private_key_location)
+    private_key = file(var.ssh_private_key)
+  }
+
+  provisioner "file" {
+    source      = "scripts/install.sh"
+    destination = "/root/install.sh"
+  }
+
+  provisioner "file" {
+    source = "configs/kubeadm.conf"
+    destination = "/root/kubeadm.conf"
+  }
+
+  provisioner "remote-exec" {
+    inline = ["bash /root/install.sh"]
+  }
+
+  provisioner "local-exec" {
+    inline = ["bash scripts/lvl-create-dns-entry.sh ${self.ipv4_address} ${self.name}"]
   }
 }
 
