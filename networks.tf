@@ -9,5 +9,5 @@ resource "hcloud_network_subnet" "master" {
   network_id = hcloud_network.k8s_local_net.id
   type = "cloud"
   network_zone = "eu-central"
-  ip_range   = var.k8s_network_ip_subnet_range
+  ip_range   = var.k8s_network_ip_cluster_subnet_range
 }

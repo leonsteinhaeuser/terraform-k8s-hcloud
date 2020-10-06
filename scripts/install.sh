@@ -91,6 +91,5 @@ cat > /etc/docker/daemon.json <<EOF
 }
 EOF
 
-mv -v /root/kubeadm.conf /etc/systemd/system/kubelet.servce.d/10-kubeadm.conf
 systemctl deamon-reload
 systemctl restart kubelet

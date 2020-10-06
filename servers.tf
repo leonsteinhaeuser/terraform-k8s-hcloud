@@ -16,7 +16,7 @@ resource "hcloud_server" "k8s_nodes_master" {
 
   connection {
     host        = self.ipv4_address
-    user        = "root"
+    user        = var.ssh_username
     type        = "ssh"
     private_key = file(var.ssh_private_key)
   }
@@ -24,11 +24,6 @@ resource "hcloud_server" "k8s_nodes_master" {
   provisioner "file" {
     source      = "scripts/install.sh"
     destination = "/root/install.sh"
-  }
-
-  provisioner "file" {
-    source = "configs/kubeadm.conf"
-    destination = "/root/kubeadm.conf"
   }
 
   provisioner "remote-exec" {
@@ -40,11 +35,41 @@ resource "hcloud_server" "k8s_nodes_master" {
     destination = "/root/init-cluster.sh"
   }
 
-  # provisio
+  # provision cluster
   provisioner "remote-exec" {
-    inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range}"]
+    inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range} ${var.k8s_network_ip_service_subnet_range} ${var.k8s_external_kubernetes_address}"]
+  }
+
+  # copy provision token from kubernetes cluster
+  provisioner "local-exec" {
+    command = "bash scripts/lcl-copy-kubeadm-token.sh"
+
+    environment = {
+      SSH_PRIVATE_KEY = var.ssh_private_key
+      SSH_USERNAME = var.ssh_username
+      SSH_HOST = hcloud_server.k8s_nodes_master[0].ipv4_address
+      TARGET = ".secrets/kubeadm_join/"
+    }
+  }
+
+  provisioner "file" {
+    source = ".secrets/kubeadm_join"
+    destination = "/root/kubeadm_join"
+  }
+
+  provisioner "file" {
+    source = "scripts/provision-at-cluster.sh"
+    destination = "/root/provision-at-cluster.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "bash /root/provision-at-cluster.sh ${var.k8s_master_machine_prefix}",
+    ]
   }
 }
+
+#
 
 resource "hcloud_server" "k8s_nodes_worker" {
   count       = var.k8s_worker_count
@@ -55,10 +80,11 @@ resource "hcloud_server" "k8s_nodes_worker" {
   #datacenter  = "fsn1"
   backups     = var.k8s_machine_worker_backups
   ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
+  depends_on  = [hcloud_server.k8s_nodes_master]
 
   connection {
     host        = self.ipv4_address
-    user        = "root"
+    user        = var.ssh_username
     type        = "ssh"
     private_key = file(var.ssh_private_key)
   }
@@ -68,80 +94,31 @@ resource "hcloud_server" "k8s_nodes_worker" {
     destination = "/root/install.sh"
   }
 
-  provisioner "file" {
-    source = "configs/kubeadm.conf"
-    destination = "/root/kubeadm.conf"
-  }
+#  provisioner "file" {
+#    source = "configs/kubeadm.conf"
+#    destination = "/root/kubeadm.conf"
+#  }
 
   provisioner "remote-exec" {
     inline = ["bash /root/install.sh"]
   }
 
-  provisioner "local-exec" {
-    inline = ["bash scripts/lvl-create-dns-entry.sh ${self.ipv4_address} ${self.name}"]
-  }
-}
-
-##################################################
-#                                                #
-# server definition for worker and master nodes  #
-#                                                #
-##################################################
-/*
-resource "hcloud_server_network" "k8s_master_network" {
-  server_id = hcloud_server.k8s_nodes_master.*.id
-  subnet_id = hcloud_network_subnet.master.id
-}
-
-resource "hcloud_server_network" "k8s_nodes_worker" {
-  server_id = hcloud_server.k8s_nodes_worker.*.id
-  subnet_id = hcloud_network_subnet.master.id
-}
-*/
-/*
-
-
-
-
-
-# defines the server
-resource "hcloud_server" "k8s_nodes" {
-  count = $(var.k8s_master_count)
-  name        = "k8s-node-0"
-  server_type = "cx11"
-  image       = "debian-10"
-  datacenter = "fsn1"
-  ssh_keys = ["${hcloud_ssh_key.admin-*.id}"]
-
-  connection {
-    private_key = "${file(var.ssh_private_key)}"
-  }
-
-  
-  # 
-
-
-
-
-
-
-
-  # define the installation script
   provisioner "file" {
-    source      = "scripts/install-docker.sh"
-    destination = "/root/install-docker.sh"
+    source = ".secrets/kubeadm_join"
+    destination = "/root/kubeadm_join"
   }
 
-  # execute the installation on the remote host
+  provisioner "file" {
+    source = "scripts/provision-at-cluster.sh"
+    destination = "/root/provision-at-cluster.sh"
+  }
+
   provisioner "remote-exec" {
-    inline = "DOCKER_VERSION=${var.docker_version} bash /root/bootstrap.sh"
+    inline = [
+      "bash /root/provision-at-cluster.sh ${var.k8s_master_machine_prefix}",
+    ]
   }
 }
-
-
-
-*/
-
 
 ## attach a server resource to a load balancer 
 #resource "hcloud_load_balancer_target" "load_balancer_target" {
