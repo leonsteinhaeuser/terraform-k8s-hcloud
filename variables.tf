@@ -16,13 +16,13 @@ resource "hcloud_ssh_key" "k8s_admin" {
 #                                                #
 ##################################################
 
-variable "k8s_master_machine_type" {
+variable "hetzner_master_machine_type" {
     description = "Defines the machine type used for master nodes"
     default     = "cx21"
     type = string
 }
 
-variable "k8s_worker_machine_type" {
+variable "hetzner_worker_machine_type" {
     description = "Defines the machine type used for worker nodes"
     default     = "cx21"
     type = string
@@ -34,13 +34,13 @@ variable "k8s_worker_machine_type" {
 #                                                #
 ##################################################
 
-variable "k8s_master_count" {
+variable "hetzner_master_count" {
     description = "Defines the amount of master nodes used for the k8s cluster"
     default     = 1
     type = number
 }
 
-variable "k8s_worker_count" {
+variable "hetzner_worker_count" {
     description = "Defines the amount of worker nodes used for the k8s cluster"
     default     = 3
     type = number
@@ -52,13 +52,13 @@ variable "k8s_worker_count" {
 #                                                 #
 ###################################################
 
-variable "k8s_master_machine_prefix" {
+variable "hetzner_master_machine_prefix" {
     description = "Defines the name prefix for the master machine"
     default     = "k8s-master"
     type = string
 }
 
-variable "k8s_worker_machine_prefix" {
+variable "hetzner_worker_machine_prefix" {
     description = "Defines the name prefix for the master machine"
     default     = "k8s-worker"
     type = string
@@ -69,9 +69,9 @@ variable "k8s_worker_machine_prefix" {
 #     define the cluster datacenter location     #
 #                                                #
 ##################################################
-variable "k8s_hetzner_datacenter" {
+variable "hetzner_datacenter" {
     description = "Defines the datacenter in which the cluster should run"
-    default     = "fsn1"
+    default     = "fsn1-dc3"
     type = string
 }
 
@@ -80,7 +80,7 @@ variable "k8s_hetzner_datacenter" {
 #     defines the machine operation system       #
 #                                                #
 ##################################################
-variable "k8s_machine_operation_system" {
+variable "hetzner_machine_operation_system" {
     description = "Defines the operation system for each node. For the available options refer to https://www.hetzner.com/cloud"
     default     = "debian-10"
     type = string
@@ -92,13 +92,13 @@ variable "k8s_machine_operation_system" {
 #                                                          #
 ############################################################
 
-variable "k8s_machine_master_backups" {
+variable "hetzner_machine_master_backups" {
     description = "Defines the name prefix for the master machine"
     default     = false
     type = bool
 }
 
-variable "k8s_machine_worker_backups" {
+variable "hetzner_machine_worker_backups" {
     description = "Defines the name prefix for the master machine"
     default     = false
     type = bool
@@ -128,7 +128,13 @@ variable "k8s_network_ip_service_subnet_range" {
     type = string
 }
 
-# if var.k8s_master_count > 1 a loadbalancer is created and the address is assigned to such service
+##################################################
+#                                                #
+#           external cluster dns name            #
+#                                                #
+##################################################
+
+# if var.hetzner_master_count > 1 a loadbalancer is created and the address is assigned to such service
 variable "k8s_external_kubernetes_address" {
     description = "Defines the external kubernetes api address"
     default = "k8s.example.local"

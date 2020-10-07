@@ -5,13 +5,12 @@
 ##################################################
 
 resource "hcloud_server" "k8s_nodes_master" {
-  count       = var.k8s_master_count
-  name        = format("%s-%d", var.k8s_master_machine_prefix, count.index + 1)
-  server_type = var.k8s_master_machine_type
-  image       = var.k8s_machine_operation_system
-  #datacenter  = var.k8s_hetzner_datacenter
-  #datacenter  = "fsn1"
-  backups     = var.k8s_machine_master_backups
+  count       = var.hetzner_master_count
+  name        = format("%s-%d", var.hetzner_master_machine_prefix, count.index + 1)
+  server_type = var.hetzner_master_machine_type
+  image       = var.hetzner_machine_operation_system
+  #datacenter  = var.hetzner_datacenter
+  backups     = var.hetzner_machine_master_backups
   ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
 
   connection {
@@ -64,21 +63,19 @@ resource "hcloud_server" "k8s_nodes_master" {
 
   provisioner "remote-exec" {
     inline = [
-      "bash /root/provision-at-cluster.sh ${var.k8s_master_machine_prefix}",
+      "bash /root/provision-at-cluster.sh ${var.hetzner_master_machine_prefix}",
     ]
   }
 }
 
-#
 
 resource "hcloud_server" "k8s_nodes_worker" {
-  count       = var.k8s_worker_count
-  name        = format("%s-%d", var.k8s_worker_machine_prefix, count.index + 1)
-  server_type = var.k8s_worker_machine_type
-  image       = var.k8s_machine_operation_system
-  #datacenter  = var.k8s_hetzner_datacenter
-  #datacenter  = "fsn1"
-  backups     = var.k8s_machine_worker_backups
+  count       = var.hetzner_worker_count
+  name        = format("%s-%d", var.hetzner_worker_machine_prefix, count.index + 1)
+  server_type = var.hetzner_worker_machine_type
+  image       = var.hetzner_machine_operation_system
+  #datacenter  = var.hetzner_datacenter
+  backups     = var.hetzner_machine_worker_backups
   ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
   depends_on  = [hcloud_server.k8s_nodes_master]
 
@@ -115,7 +112,7 @@ resource "hcloud_server" "k8s_nodes_worker" {
 
   provisioner "remote-exec" {
     inline = [
-      "bash /root/provision-at-cluster.sh ${var.k8s_master_machine_prefix}",
+      "bash /root/provision-at-cluster.sh ${var.hetzner_master_machine_prefix}",
     ]
   }
 }

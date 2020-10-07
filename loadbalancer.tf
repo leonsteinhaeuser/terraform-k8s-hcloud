@@ -2,7 +2,7 @@ resource "hcloud_load_balancer" "load_balancer" {
   name       = var.k8s_loadbalancer_name
   load_balancer_type = var.k8s_loadbalancer_type
   location   = var.k8s_loadbalancer_location
-  count = "${var.k8s_master_count > 1 ? 1 : 0}"
+  count = "${var.hetzner_master_count > 1 ? 1 : 0}"
 
   target {
     type = "server"

@@ -1,4 +1,4 @@
-kubeadm init --pod-network-cidr=$1 --service-cidr $2 #--control-plane-endpoint $3
+kubeadm init --pod-network-cidr=$1 --service-cidr $2 --control-plane-endpoint $3
 
 systemctl enable docker kubelet
 
