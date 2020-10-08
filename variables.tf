@@ -124,7 +124,7 @@ variable "k8s_network_ip_cluster_subnet_range" {
 
 variable "k8s_network_ip_service_subnet_range" {
     description = "Defined the cluster ip service subnet range"
-    default = "10.128.0.0/16"
+    default = "10.0.0.0/16"
     type = string
 }
 
@@ -138,6 +138,48 @@ variable "k8s_network_ip_service_subnet_range" {
 variable "k8s_external_kubernetes_address" {
     description = "Defines the external kubernetes api address"
     default = "k8s.example.local"
+    type = string
+}
+
+##################################################
+#                                                #
+#             hetzner machine labels             #
+#                                                #
+##################################################
+
+variable "hetzner_machine_label_type_master" {
+    description = "Defines the master machine label used to identify master nodes"
+    default = "master"
+    type = string
+}
+
+variable "hetzner_machine_label_type_worker" {
+    description = "Defines the worker machine label used to identify master nodes"
+    default = "worker"
+    type = string
+}
+
+variable "hetzner_machine_label_type_private_network" {
+    description = "Defines the private network machine label name"
+    default = "private_network"
+    type = string
+}
+
+##################################################
+#                                                #
+#            hetzner machine network             #
+#                                                #
+##################################################
+
+variable "hetzner_machine_network" {
+    description = "Defines the private network address used to connect the machines together"
+    default = "192.168.0.0/24"
+    type = string
+}
+
+variable "hetzner_machine_network_subnet_range" {
+    description = "Defines the private network address used to connect the machines together"
+    default = "192.168.0.0/24"
     type = string
 }
 
@@ -162,5 +204,17 @@ variable "k8s_loadbalancer_type" {
 variable "k8s_loadbalancer_location" {
     description = "Defines the loadbalancer location"
     default = "nbg1"
+    type = string
+}
+
+variable "k8s_loadbalancer_use_private_ip" {
+    description = "Defines if the loadbalancer should use a private ipv4 to addresses it's targets"
+    default = false
+    type = bool
+}
+
+variable "k8s_loadbalancer_algorithm" {
+    description = "Defines the loadbalancer algorith used by hetzners loadbalancer"
+    default = "round_robin"
     type = string
 }

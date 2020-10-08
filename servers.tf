@@ -9,9 +9,13 @@ resource "hcloud_server" "k8s_nodes_master" {
   name        = format("%s-%d", var.hetzner_master_machine_prefix, count.index + 1)
   server_type = var.hetzner_master_machine_type
   image       = var.hetzner_machine_operation_system
-  #datacenter  = var.hetzner_datacenter
+  datacenter  = var.hetzner_datacenter
   backups     = var.hetzner_machine_master_backups
   ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
+  labels      = {
+    machine_type=var.hetzner_machine_label_type_master, 
+    network_name=var.hetzner_machine_label_type_private_network
+  }
 
   connection {
     host        = self.ipv4_address
@@ -74,10 +78,14 @@ resource "hcloud_server" "k8s_nodes_worker" {
   name        = format("%s-%d", var.hetzner_worker_machine_prefix, count.index + 1)
   server_type = var.hetzner_worker_machine_type
   image       = var.hetzner_machine_operation_system
-  #datacenter  = var.hetzner_datacenter
+  datacenter  = var.hetzner_datacenter
   backups     = var.hetzner_machine_worker_backups
   ssh_keys    = [hcloud_ssh_key.k8s_admin.id]
   depends_on  = [hcloud_server.k8s_nodes_master]
+  labels      = {
+    machine_type=var.hetzner_machine_label_type_worker, 
+    network_name=var.hetzner_machine_label_type_private_network
+  }
 
   connection {
     host        = self.ipv4_address
@@ -117,9 +125,14 @@ resource "hcloud_server" "k8s_nodes_worker" {
   }
 }
 
-## attach a server resource to a load balancer 
-#resource "hcloud_load_balancer_target" "load_balancer_target" {
-#  type             = "server"
-#  load_balancer_id = "${hcloud_load_balancer.load_balcancer.id}"
-#  server_id        = "${hcloud_server.k8s_node_1.id}"
-#}
+resource "hcloud_server_network" "master_node_network" {
+  count = var.hetzner_master_count
+  server_id = hcloud_server.k8s_nodes_master[count.index].id
+  subnet_id = hcloud_network_subnet.master.id
+}
+
+resource "hcloud_server_network" "worker_node_network" {
+  count = var.hetzner_worker_count
+  server_id = hcloud_server.k8s_nodes_worker[count.index].id
+  subnet_id = hcloud_network_subnet.master.id
+}

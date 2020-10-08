@@ -13,6 +13,9 @@ hetzner_machine_operation_system="debian-10"
 hetzner_machine_master_backups=false
 hetzner_machine_worker_backups=false
 
+hetzner_machine_network="172.16.0.0/16"
+hetzner_machine_network_subnet_range="172.16.0.0/24"
+
 k8s_network_ip_range="10.0.0.0/8"
 k8s_network_ip_cluster_subnet_range="10.0.0.0/16"
 k8s_network_ip_service_subnet_range="10.128.0.0/16"
