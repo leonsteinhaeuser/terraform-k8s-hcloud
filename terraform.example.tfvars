@@ -21,3 +21,5 @@ k8s_network_ip_cluster_subnet_range="10.0.0.0/16"
 k8s_network_ip_service_subnet_range="10.128.0.0/16"
 
 k8s_external_kubernetes_address="k8s.example.local"
+
+hetzner_loadbalancer_use_public_network_ip=true

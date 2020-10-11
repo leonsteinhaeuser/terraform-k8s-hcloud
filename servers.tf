@@ -40,7 +40,7 @@ resource "hcloud_server" "k8s_nodes_master" {
 
   # provision cluster
   provisioner "remote-exec" {
-    inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range} ${var.k8s_network_ip_service_subnet_range} ${var.k8s_external_kubernetes_address}"]
+    inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range} ${var.k8s_network_ip_service_subnet_range} ${var.k8s_external_kubernetes_address} ${var.hetzner_master_machine_prefix}"]
   }
 
   # copy provision token from kubernetes cluster
@@ -61,15 +61,21 @@ resource "hcloud_server" "k8s_nodes_master" {
   }
 
   provisioner "file" {
-    source = "scripts/provision-at-cluster.sh"
-    destination = "/root/provision-at-cluster.sh"
+    source = "scripts/provision-as-master.sh"
+    destination = "/root/provision-as-master.sh"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "bash /root/provision-at-cluster.sh ${var.hetzner_master_machine_prefix}",
+      "bash /root/provision-as-master.sh ${var.hetzner_master_machine_prefix} ${hcloud_server.k8s_nodes_master[0].ipv4_address} ${var.k8s_external_kubernetes_address}",
     ]
   }
+}
+
+resource "hcloud_server_network" "master_node_network" {
+  count = var.hetzner_master_count
+  server_id = hcloud_server.k8s_nodes_master[count.index].id
+  subnet_id = hcloud_network_subnet.master.id
 }
 
 
@@ -120,19 +126,22 @@ resource "hcloud_server" "k8s_nodes_worker" {
 
   provisioner "remote-exec" {
     inline = [
-      "bash /root/provision-at-cluster.sh ${var.hetzner_master_machine_prefix}",
+      "bash /root/provision-at-cluster.sh ${var.hetzner_master_machine_prefix} ${hcloud_server.k8s_nodes_master[0].ipv4_address} ${var.k8s_external_kubernetes_address}",
     ]
   }
 }
 
-resource "hcloud_server_network" "master_node_network" {
-  count = var.hetzner_master_count
-  server_id = hcloud_server.k8s_nodes_master[count.index].id
-  subnet_id = hcloud_network_subnet.master.id
-}
+
 
 resource "hcloud_server_network" "worker_node_network" {
   count = var.hetzner_worker_count
   server_id = hcloud_server.k8s_nodes_worker[count.index].id
   subnet_id = hcloud_network_subnet.master.id
 }
+
+
+/*
+kubeadm join k8s.computingoverload.de:6443 --token rl1d8s.qfu99jhl4s5hf840 \
+  --discovery-token-ca-cert-hash sha256:91cc234d9453f9655409dc8a633fd1a36cd8181bed0e4680d67e7c25e2487c6f \
+  --control-plane
+*/

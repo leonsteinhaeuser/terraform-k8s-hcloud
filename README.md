@@ -24,6 +24,6 @@ This repository provides terraform scripts that installs a kubernetes cluster in
 | `k8s_network_ip_cluster_subnet_range` | string | `10.0.0.0/16` | Defines the ipv4 range used for your pods |
 | `k8s_network_ip_service_subnet_range` | string | `10.128.0.0/16` | Defines the ipv4 range used as service range |
 | `k8s_external_kubernetes_address` | string | `k8s.example.local` | Defines the external DNS name used for your cluster (if master cound > 1 the address is set to the loadbalancer) |
-| `k8s_loadbalancer_name` | string | `k8s-lb` | Defines the loadbalancer name |
-| `k8s_loadbalancer_type` | string | `lb11` | Defines the type used for the loadbalancer. Refer to https://www.hetzner.com/cloud/load-balancer |
-| `k8s_loadbalancer_location` | string | `nbg1` | Defines the datacenter in which the loadbalancer should run |
+| `hetzner_loadbalancer_name` | string | `k8s-lb` | Defines the loadbalancer name |
+| `hetzner_loadbalancer_type` | string | `lb11` | Defines the type used for the loadbalancer. Refer to https://www.hetzner.com/cloud/load-balancer |
+| `hetzner_loadbalancer_datacenter_location` | string | `nbg1` | Defines the datacenter in which the loadbalancer should run |

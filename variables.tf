@@ -189,32 +189,50 @@ variable "hetzner_machine_network_subnet_range" {
 #                                                #
 ##################################################
 
-variable "k8s_loadbalancer_name" {
+variable "hetzner_loadbalancer_name" {
     description = "Defines the loadbalancer name"
     default = "k8s-lb"
     type = string
 }
 
-variable "k8s_loadbalancer_type" {
+variable "hetzner_loadbalancer_type" {
     description = "Defines the loadbalancer type"
     default = "lb11"
     type = string
 }
 
-variable "k8s_loadbalancer_location" {
+variable "hetzner_loadbalancer_datacenter_location" {
     description = "Defines the loadbalancer location"
     default = "nbg1"
     type = string
 }
 
-variable "k8s_loadbalancer_use_private_ip" {
-    description = "Defines if the loadbalancer should use a private ipv4 to addresses it's targets"
+variable "hetzner_loadbalancer_use_public_network_ip" {
+    description = "Defines if the loadbalancer should use the public ipv4 to addresses it's targets"
+    default = true
+    type = bool
+}
+
+variable "hetzner_loadbalancer_algorithm" {
+    description = "Defines the loadbalancer algorith used by hetzners loadbalancer"
+    default = "round_robin"
+    type = string
+}
+
+##################################################
+#                                                #
+#            kube admin config options           #
+#                                                #
+##################################################
+
+variable "k8s_copy_config_to_local_system" {
+    description = "Defines if the kubernetes administration configuration should be copied to a local defined directory"
     default = false
     type = bool
 }
 
-variable "k8s_loadbalancer_algorithm" {
-    description = "Defines the loadbalancer algorith used by hetzners loadbalancer"
-    default = "round_robin"
+variable "k8s_copy_config_to_local_system_path" {
+    description = "Defines if the kubernetes administration configuration should be copied to a local defined directory"
+    default = "~/.kube/config"
     type = string
 }
