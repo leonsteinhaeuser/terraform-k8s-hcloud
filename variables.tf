@@ -109,22 +109,41 @@ variable "hetzner_machine_worker_backups" {
 #             k8s network definition             #
 #                                                #
 ##################################################
-variable "k8s_network_ip_range" {
-    description = "Defines the cluster network address range"
-    default = "10.0.0.0/8"
+
+variable "k8s_cluster_network_driver_url" {
+    description = "Defines the pod network driver url"
+    default = "https://docs.projectcalico.org/manifests/canal.yaml"
     type = string
 }
 
 # pod-cidr
 variable "k8s_network_ip_cluster_subnet_range" {
     description = "Defines the cluster network subnet address range"
-    default = "10.0.0.0/16"
+    default = "10.0.0.0/9"
     type = string
 }
 
 variable "k8s_network_ip_service_subnet_range" {
     description = "Defined the cluster ip service subnet range"
-    default = "10.0.0.0/16"
+    default = "10.128.0.0/16"
+    type = string
+}
+
+##################################################
+#                                                #
+#             k8s cluster definition             #
+#                                                #
+##################################################
+
+variable "k8s_cluster_internal_dns_name" {
+    description = "Defines the internal cluster dns address"
+    default = "cluster.local"
+    type = string
+}
+
+variable "k8s_cluster_version" {
+    description = "Defines the version the kubernetes cluster should run with"
+    default = "1.19.3-00"
     type = string
 }
 

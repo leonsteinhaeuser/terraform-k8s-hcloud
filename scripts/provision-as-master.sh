@@ -1,10 +1,12 @@
 MASTER_MACHINE_PREFIX=$1
 HOSTS_ENTRY="$2 $3"
 
-mkdir -p /root/.kube
-cp /root/kubeadm_join/admin.conf /root/.kube/config
+
 
 if [ "$HOSTNAME" != "$MASTER_MACHINE_PREFIX-1" ]; then
+    mkdir -p /root/.kube
+    cp /root/kubeadm_join/admin.conf /root/.kube/config
+
     echo $HOSTS_ENTRY >> /etc/hosts
     echo "added hostentry to hosts file"
 

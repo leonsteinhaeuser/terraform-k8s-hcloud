@@ -30,7 +30,7 @@ resource "hcloud_server" "k8s_nodes_master" {
   }
 
   provisioner "remote-exec" {
-    inline = ["bash /root/install.sh"]
+    inline = ["bash /root/install.sh ${var.k8s_cluster_version}"]
   }
 
   provisioner "file" {
@@ -40,7 +40,8 @@ resource "hcloud_server" "k8s_nodes_master" {
 
   # provision cluster
   provisioner "remote-exec" {
-    inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range} ${var.k8s_network_ip_service_subnet_range} ${var.k8s_external_kubernetes_address} ${var.hetzner_master_machine_prefix}"]
+    #inline = ["bash /root/init-cluster.sh ${var.k8s_network_ip_range} ${var.k8s_network_ip_service_subnet_range} ${var.k8s_external_kubernetes_address} ${var.hetzner_master_machine_prefix}"]
+    inline = ["bash /root/init-cluster.sh ${var.hetzner_master_count} ${var.k8s_cluster_internal_dns_name} ${var.k8s_external_kubernetes_address} ${var.k8s_network_ip_cluster_subnet_range} ${var.k8s_network_ip_service_subnet_range} ${var.hetzner_master_machine_prefix} ${var.k8s_cluster_network_driver_url}"]
   }
 
   # copy provision token from kubernetes cluster
@@ -111,7 +112,7 @@ resource "hcloud_server" "k8s_nodes_worker" {
 #  }
 
   provisioner "remote-exec" {
-    inline = ["bash /root/install.sh"]
+    inline = ["bash /root/install.sh ${var.k8s_cluster_version}"]
   }
 
   provisioner "file" {
