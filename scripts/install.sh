@@ -113,5 +113,5 @@ case "$OS_RELEASE" in
         exit -1;;
 esac
 
-systemctl deamon-reload
+systemctl daemon-reload
 systemctl restart kubelet
