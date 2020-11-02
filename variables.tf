@@ -255,3 +255,21 @@ variable "k8s_copy_config_to_local_system_path" {
     default = "~/.kube/config"
     type = string
 }
+
+##################################################
+#                                                #
+#       kubernetes nginx ingress controller      #
+#                                                #
+##################################################
+
+variable "k8s_enable_nginx_ingress_controller" {
+    description = "Defines if the nginx ingress controller should be installed in the cluster. This options automaticcaly creates a loadbalancer that accesses the node port on the worker machines"
+    default = false
+    type = bool
+}
+
+variable "k8s_nginx_ingress_install_url" {
+    description = "Defines if the nginx ingress controller version that should be installed"
+    default = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.40.2/deploy/static/provider/baremetal/deploy.yaml"
+    type = string
+}

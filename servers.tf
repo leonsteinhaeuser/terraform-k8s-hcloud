@@ -56,6 +56,17 @@ resource "hcloud_server" "k8s_nodes_master" {
     }
   }
 
+  provisioner "local-exec" {
+    command = "bash scripts/local-exec/k8s_install_nginx_ingress.sh"
+
+    environment = {
+      KUBECONFIG_SAVED = ".secrets/kubeadm_join/"
+      INSTALL_NGINX_INGRESS = var.k8s_enable_nginx_ingress_controller
+      INGRES_INSTALL_URL = var.k8s_nginx_ingress_install_url
+      HOST_ID = count.index
+    }
+  }
+
   provisioner "file" {
     source = ".secrets/kubeadm_join"
     destination = "/root/kubeadm_join"
@@ -140,9 +151,3 @@ resource "hcloud_server_network" "worker_node_network" {
   subnet_id = hcloud_network_subnet.master.id
 }
 
-
-/*
-kubeadm join k8s.computingoverload.de:6443 --token rl1d8s.qfu99jhl4s5hf840 \
-  --discovery-token-ca-cert-hash sha256:91cc234d9453f9655409dc8a633fd1a36cd8181bed0e4680d67e7c25e2487c6f \
-  --control-plane
-*/
