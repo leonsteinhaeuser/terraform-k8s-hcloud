@@ -56,6 +56,21 @@ resource "hcloud_server" "k8s_nodes_master" {
     }
   }
 
+  # install k8s nginx ingress controller
+  provisioner "local-exec" {
+    command = "bash scripts/local-exec/k8s_install_nginx_ingress.sh"
+
+    environment = {
+      K8S_NGINX_HTTP_NODEPORT = var.k8s_nginx_ingress_nodeport_http
+      K8S_NGINX_HTTPS_NODEPORT = var.k8s_nginx_ingress_nodeport_https
+      INGRESS_SVC_STORE_LOCATION = ".secrets/nginx-svc.yml"
+      KUBECONFIG_SAVED = ".secrets/kubeadm_join/admin.conf"
+      INSTALL_NGINX_INGRESS = var.k8s_enable_nginx_ingress_controller
+      INGRES_INSTALL_URL = var.k8s_nginx_ingress_install_url
+      HOST_ID = count.index
+    }
+  }
+
   provisioner "file" {
     source = ".secrets/kubeadm_join"
     destination = "/root/kubeadm_join"
@@ -106,11 +121,6 @@ resource "hcloud_server" "k8s_nodes_worker" {
     destination = "/root/install.sh"
   }
 
-#  provisioner "file" {
-#    source = "configs/kubeadm.conf"
-#    destination = "/root/kubeadm.conf"
-#  }
-
   provisioner "remote-exec" {
     inline = ["bash /root/install.sh ${var.k8s_cluster_version}"]
   }
@@ -130,19 +140,24 @@ resource "hcloud_server" "k8s_nodes_worker" {
       "bash /root/provision-at-cluster.sh ${var.hetzner_master_machine_prefix} ${hcloud_server.k8s_nodes_master[0].ipv4_address} ${var.k8s_external_kubernetes_address}",
     ]
   }
+
+  # install k8s acme certificate manager
+  provisioner "local-exec" {
+    command = "bash scripts/local-exec/k8s_install_letsencrypt_certmanager.sh"
+
+    environment = {
+      KUBECONFIG_SAVED = ".secrets/kubeadm_join/admin.conf"
+      K8S_CERTMANAGER_ACME_INSTALLATION_VERSION = var.k8s_certmanager_acme_installation_version
+      K8S_ACME_ISSUER_CONFIG = "k8s-files/acme-certificate-issuer.yml"
+      INSTALL_ACME_CERTMANAGER = var.k8s_deploy_acme_cert_manager
+      ACME_ISSUER_EMAIL = var.k8s_acme_issuer_email
+      HOST_ID = count.index
+    }
+  }
 }
-
-
 
 resource "hcloud_server_network" "worker_node_network" {
   count = var.hetzner_worker_count
   server_id = hcloud_server.k8s_nodes_worker[count.index].id
   subnet_id = hcloud_network_subnet.master.id
 }
-
-
-/*
-kubeadm join k8s.computingoverload.de:6443 --token rl1d8s.qfu99jhl4s5hf840 \
-  --discovery-token-ca-cert-hash sha256:91cc234d9453f9655409dc8a633fd1a36cd8181bed0e4680d67e7c25e2487c6f \
-  --control-plane
-*/
