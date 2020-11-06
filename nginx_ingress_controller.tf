@@ -18,40 +18,42 @@ resource "hcloud_load_balancer" "nginx_ingress_loadbalancer" {
   }
 }
 
-resource "hcloud_load_balancer_service" "http_80_lb_service" {
+resource "hcloud_load_balancer_service" "http_ingress_80_lb_service" {
   count = var.k8s_enable_nginx_ingress_controller ? 1 : 0
   load_balancer_id = hcloud_load_balancer.nginx_ingress_loadbalancer[0].id
   protocol         = "tcp"
   listen_port      = "80"
-  destination_port = "80"
+  destination_port = var.k8s_nginx_ingress_nodeport_http
 
   health_check {
     protocol = "tcp"
-    port     = "80"
-    interval = "10"
-    timeout  = "10"
+    port     = var.k8s_nginx_ingress_nodeport_http
+    interval = var.k8s_nginx_ingress_loadbalancer_interval
+    timeout  = var.k8s_nginx_ingress_loadbalancer_timeout
+
     http {
-      path         = "/"
-      status_codes = ["2??", "3??"]
+      path         = "/healthz"
+      status_codes = var.k8s_nginx_ingress_controller_loadbalancer_status_codes
     }
   }
 }
 
-resource "hcloud_load_balancer_service" "http_443_lb_service" {
+resource "hcloud_load_balancer_service" "http_ingress_443_lb_service" {
   count = var.k8s_enable_nginx_ingress_controller ? 1 : 0
   load_balancer_id = hcloud_load_balancer.nginx_ingress_loadbalancer[0].id
   protocol         = "tcp"
   listen_port      = "443"
-  destination_port = "443"
+  destination_port = var.k8s_nginx_ingress_nodeport_https
 
   health_check {
     protocol = "tcp"
-    port     = "443"
-    interval = "10"
-    timeout  = "10"
+    port     = var.k8s_nginx_ingress_nodeport_https
+    interval = var.k8s_nginx_ingress_loadbalancer_interval
+    timeout  = var.k8s_nginx_ingress_loadbalancer_interval
+
     http {
-      path         = "/"
-      status_codes = ["2??", "3??"]
+      path         = "/healthz"
+      status_codes = var.k8s_nginx_ingress_controller_loadbalancer_status_codes
     }
   }
 }
