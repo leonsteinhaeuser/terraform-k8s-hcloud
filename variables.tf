@@ -82,7 +82,7 @@ variable "hetzner_datacenter" {
 ##################################################
 variable "hetzner_machine_operation_system" {
     description = "Defines the operation system for each node. For the available options refer to https://www.hetzner.com/cloud"
-    default     = "debian-10"
+    default     = "ubuntu-20.04"
     type = string
 }
 
@@ -142,7 +142,7 @@ variable "k8s_cluster_internal_dns_name" {
 }
 
 variable "k8s_cluster_version" {
-    description = "Defines the version the kubernetes cluster should run with"
+    description = "Defines the version of kubernetes included in the package manager that terraform should install. Under Debian you can run: `apt-cache policy kubeadm`"
     default = "1.19.3-00"
     type = string
 }
@@ -263,13 +263,67 @@ variable "k8s_copy_config_to_local_system_path" {
 ##################################################
 
 variable "k8s_enable_nginx_ingress_controller" {
-    description = "Defines if the nginx ingress controller should be installed in the cluster. This options automaticcaly creates a loadbalancer that accesses the node port on the worker machines"
+    description = "Defines whether the nginx-Ingress-Controller should be used in the cluster. This option automatically creates a load balancer that accesses the node port on the worker machines. Since we do not support the creation of DNS records, you have to do this manually."
     default = false
     type = bool
 }
 
 variable "k8s_nginx_ingress_install_url" {
-    description = "Defines if the nginx ingress controller version that should be installed"
+    description = "Defines the installation URL of the nginx Ingress Controller version to be installed"
     default = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.40.2/deploy/static/provider/baremetal/deploy.yaml"
+    type = string
+}
+
+variable "k8s_nginx_ingress_nodeport_http" {
+    description = "Defines the node-port that is used for the nginx http-Ingress-Controller"
+    default = 31110
+    type = string
+}
+
+variable "k8s_nginx_ingress_nodeport_https" {
+    description = "Defines the node-port that is used for the nginx https-Ingress-Controller"
+    default = 31111
+    type = string
+}
+
+variable "k8s_nginx_ingress_loadbalancer_timeout" {
+    description = "Defines the timeout when a health check try will be canceled if there is no response, in seconds"
+    default = 15
+    type = number
+}
+
+variable "k8s_nginx_ingress_loadbalancer_interval" {
+    description = "Defines the interval how often the health check will be performed, in seconds"
+    default = 15
+    type = number
+}
+
+variable "k8s_nginx_ingress_controller_loadbalancer_status_codes" {
+    description = "Defines the list of status codes that the load balancer accepts to maintain healthy mode"
+    default = ["2??", "3??"]
+    type = list(string)
+}
+
+##################################################
+#                                                #
+#             kubernetes cert-manager            #
+#                                                #
+##################################################
+
+variable "k8s_deploy_acme_cert_manager" {
+    description = "Defines whether the acme cert-manager should be used"
+    default = false
+    type = bool
+}
+
+variable "k8s_acme_issuer_email" {
+    description = "Defines the e-mail address of the issuer, which is used for letsencrypt as target mail for expiring certificates and problems related to your account"
+    default = ""
+    type = string
+}
+
+variable "k8s_certmanager_acme_installation_version" {
+    description = "Defines the version of the acme cert-manager which should be installed. See https://github.com/jetstack/cert-manager/releases/ to see the available versions"
+    default = "v1.0.4"
     type = string
 }
