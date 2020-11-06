@@ -68,7 +68,7 @@ This repository provides terraform scripts that installs a kubernetes cluster in
 | Name | Type | Default value | Description |
 |------|------|---------------|-------------|
 | `k8s_deploy_acme_cert_manager` | boolean | `false` | Defines whether the acme cert-manager should be used |
-| `k8s_acme_issuer_email` | string | Defines the e-mail address of the issuer, which is used for letsencrypt as target mail for expiring certificates and problems related to your account |
+| `k8s_acme_issuer_email` | string | | Defines the e-mail address of the issuer, which is used for letsencrypt as target mail for expiring certificates and problems related to your account |
 | `k8s_certmanager_acme_installation_version` | string | `v1.0.4` | Defines the version of the acme cert-manager which should be installed. See https://github.com/jetstack/cert-manager/releases/ to see the available versions |
 
 ---
