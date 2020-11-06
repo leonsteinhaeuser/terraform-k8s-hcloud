@@ -115,3 +115,5 @@ esac
 
 systemctl daemon-reload
 systemctl restart kubelet
+
+echo 'source <(kubectl completion bash)' >>~/.bashrc
