@@ -5,6 +5,30 @@ variable "hcloud_token" {
     type = string
 }
 
+variable "ssh_private_key" {
+    description = "Path to the location where the private key is stored to connect to the machines"
+    default     = "~/.ssh/id_rsa"
+    type = string
+}
+
+variable "ssh_public_key" {
+  description = "Public Key to authorized the access for the machines"
+  default     = "~/.ssh/id_rsa.pub"
+  type = string
+}
+
+variable "ssh_username" {
+  description = "Username that should be used to connect to the nodes"
+  default = "root"
+  type = string
+}
+
+variable "ssh_authorized_key_file_location" {
+    description = "Defines the location for the authorized_keys file to be used to allow other users to access the machines."
+    default = ""
+    type = string
+}
+
 resource "hcloud_ssh_key" "k8s_admin" {
   name       = "k8s_admin"
   public_key = file(var.ssh_public_key)

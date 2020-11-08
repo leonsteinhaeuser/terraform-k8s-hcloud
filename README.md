@@ -1,6 +1,6 @@
 # terraform-hcloud
 
-This repository provides terraform scripts that installs a kubernetes cluster in the [hetzner cloud](https://www.hetzner.com/cloud).
+This repository provides [terraform](https://www.terraform.io/) scripts that installs a kubernetes cluster in the [hetzner cloud](https://www.hetzner.com/cloud).
 
 ## Variables
 
@@ -12,6 +12,7 @@ This repository provides terraform scripts that installs a kubernetes cluster in
 | `ssh_public_key` | string | `~/.ssh/id_rsa.pub` | Defines the path to your ***ssh public key*** |
 | `ssh_private_key` | string | `~/.ssh/id_rsa` | Defines the path to your ***ssh private key*** |
 | `ssh_username` | string | `root` | Defines the username used for ssh connections |
+| `ssh_authorized_key_file_location` | string | `` | Defines the location for the authorized_keys file to be used to allow other users to access the machines. |
 
 **MACHINE DEFINITION OPTIONS:**
 
@@ -19,7 +20,7 @@ This repository provides terraform scripts that installs a kubernetes cluster in
 |------|------|---------------|-------------|
 | `hetzner_master_machine_type` | string | `cx21` | Defines the machine type used for kubernetes master machines. For such types refer to https://www.hetzner.com/cloud |
 | `hetzner_worker_machine_type` | string | `cx21` | Defines the machine type used for kubernetes worker machines. For such types refer to https://www.hetzner.com/cloud |
-| `hetzner_master_count` | int | 1 | Defines the number of Kubernetes master machines. If the number is > 1, a load balancer is created automatically and the external address of the load balancer is set as kubernet api address |
+| `hetzner_master_count` | int | 1 | Defines the number of Kubernetes master machines. If the number is > 1, a load balancer is created automatically and the external address of the load balancer is set as kubernetes api address |
 | `hetzner_worker_count` | int | 3 | Defines the number of Kubernetes worker machines. |
 | `hetzner_master_machine_prefix` | string | `k8s-master` | Defines the master machine prefix. A trailing `-` is added after the prefix |
 | `hetzner_worker_machine_prefix` | string | `k8s-worker` | Defines the worker machine prefix. A trailing `-` is added after the prefix |
@@ -38,7 +39,7 @@ This repository provides terraform scripts that installs a kubernetes cluster in
 | `k8s_network_ip_cluster_subnet_range` | string | `10.0.0.0/16` | Defines the ipv4 range used for your pods |
 | `k8s_network_ip_service_subnet_range` | string | `10.128.0.0/16` | Defines the ipv4 range used as service range |
 | `k8s_cluster_internal_dns_name` | string | `cluster.local` | Defines the internal cluster DNS range |
-| `k8s_cluster_version` | string | `1.19.3-00` | Defines the version of kubernetes included in the package manager that terraform should install. Under Debian you can run: `apt-cache policy kubeadm` |
+| `k8s_cluster_version` | string | `1.19.3-00` | Defines the version of kubernetes included in the package manager that terraform should install. On Debian you can run: `apt-cache policy kubeadm` to list the available versions. |
 | `k8s_external_kubernetes_address` | string | `k8s.example.local` | Defines the external DNS name used for your cluster (if master count > 1 the address is set to the loadbalancer) |
 
 **KUBERNETES CLUSTER DEFINITION OPTIONS:**
@@ -70,6 +71,12 @@ This repository provides terraform scripts that installs a kubernetes cluster in
 | `k8s_deploy_acme_cert_manager` | boolean | `false` | Defines whether the acme cert-manager should be used |
 | `k8s_acme_issuer_email` | string | | Defines the e-mail address of the issuer, which is used for letsencrypt as target mail for expiring certificates and problems related to your account |
 | `k8s_certmanager_acme_installation_version` | string | `v1.0.4` | Defines the version of the acme cert-manager which should be installed. See https://github.com/jetstack/cert-manager/releases/ to see the available versions |
+
+---
+
+## Recommendations
+
+Since all scripts were mainly tested with ubuntu-20.04 systems, we recommend to use ubuntu-20.04 on your Kubernetes machines.
 
 ---
 

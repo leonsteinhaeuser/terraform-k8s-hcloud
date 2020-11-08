@@ -86,6 +86,17 @@ resource "hcloud_server" "k8s_nodes_master" {
       "bash /root/provision-as-master.sh ${var.hetzner_master_machine_prefix} ${hcloud_server.k8s_nodes_master[0].ipv4_address} ${var.k8s_external_kubernetes_address}",
     ]
   }
+
+  provisioner "local-exec" {
+    command = "bash scripts/local-exec/copy-authorized-keys.sh"
+
+    environment = {
+      "SSH_PRIVATE_KEY_LOCATION" = var.ssh_private_key
+      "SSH_USERNAME" = var.ssh_username
+      "SSH_TARGET_ADDRESS" = self.ipv4_address
+      "SSH_AUTHORIZED_KEY_FILE_LOCATION" = var.ssh_authorized_key_file_location
+    }
+  }
 }
 
 resource "hcloud_server_network" "master_node_network" {
@@ -152,6 +163,17 @@ resource "hcloud_server" "k8s_nodes_worker" {
       INSTALL_ACME_CERTMANAGER = var.k8s_deploy_acme_cert_manager
       ACME_ISSUER_EMAIL = var.k8s_acme_issuer_email
       HOST_ID = count.index
+    }
+  }
+
+  provisioner "local-exec" {
+    command = "bash scripts/local-exec/copy-authorized-keys.sh"
+
+    environment = {
+      "SSH_PRIVATE_KEY_LOCATION" = var.ssh_private_key
+      "SSH_USERNAME" = var.ssh_username
+      "SSH_TARGET_ADDRESS" = self.ipv4_address
+      "SSH_AUTHORIZED_KEY_FILE_LOCATION" = var.ssh_authorized_key_file_location
     }
   }
 }
