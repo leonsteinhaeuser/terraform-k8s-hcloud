@@ -51,7 +51,10 @@ if [ "$HOSTNAME" == "$MASTER_PREFIX-1" ]; then
 
     echo "Using [ $ARGS ] to initialize the cluster"
 
-    kubeadm init $ARGS
+    kubeadm init $ARGS > /tmp/k8s_init.log
+
+    #copy control plane join string to the temp directory
+    grep -B 2 '\-\-control-plane' /tmp/k8s_init.log > /tmp/k8s_control_plane_join.txt
 
     mkdir -p ~/.kube
     cp /etc/kubernetes/admin.conf ~/.kube/config

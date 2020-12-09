@@ -46,7 +46,7 @@ resource "hcloud_server" "k8s_nodes_master" {
 
   # copy provision token from kubernetes cluster
   provisioner "local-exec" {
-    command = "bash scripts/lcl-copy-kubeadm-token.sh"
+    command = "bash scripts/local-exec/copy-kubeadm-token.sh"
 
     environment = {
       SSH_PRIVATE_KEY = var.ssh_private_key
@@ -76,16 +76,26 @@ resource "hcloud_server" "k8s_nodes_master" {
     destination = "/root/kubeadm_join"
   }
 
+  #provisioner "file" {
+  #  source = "scripts/provision-as-master.sh"
+  #  destination = "/root/provision-as-master.sh"
+  #}
+
   provisioner "file" {
-    source = "scripts/provision-as-master.sh"
-    destination = "/root/provision-as-master.sh"
+    source = ".secrets/kubeadm_join/k8s_control_plane_join.txt"
+    destination = "/root/k8s_control_plane_join.txt"
   }
 
-  provisioner "remote-exec" {
-    inline = [
-      "bash /root/provision-as-master.sh ${var.hetzner_master_machine_prefix} ${hcloud_server.k8s_nodes_master[0].ipv4_address} ${var.k8s_external_kubernetes_address}",
-    ]
+  provisioner "file" {
+    source = ".secrets/kubeadm_join/admin.conf"
+    destination = "/root/.kube/config"
   }
+
+  #provisioner "remote-exec" {
+  #  inline = [
+  #    "bash /root/provision-as-master.sh ${var.hetzner_master_machine_prefix} ${hcloud_server.k8s_nodes_master[0].ipv4_address} ${var.k8s_external_kubernetes_address}",
+  #  ]
+  #}
 
   provisioner "local-exec" {
     command = "bash scripts/local-exec/copy-authorized-keys.sh"
@@ -103,6 +113,24 @@ resource "hcloud_server_network" "master_node_network" {
   count = var.hetzner_master_count
   server_id = hcloud_server.k8s_nodes_master[count.index].id
   subnet_id = hcloud_network_subnet.master.id
+}
+
+# do the etcd setup thing
+resource "null_resource" "setup_etcd_cluster_provisioning" {
+  provisioner "local-exec" {
+    command = "bash scripts/local-exec/setup_etcd_cluster.sh"
+
+    environment = {
+      "MASTER_MACHINE_PREFIX" = var.hetzner_master_machine_prefix
+      "MASTER_MAX_COUNT" = var.hetzner_master_count
+      "SSH_PRIVATE_KEY_LOCATION" = var.ssh_private_key
+      "SSH_USERNAME" = var.ssh_username
+      "K8S_ETCD_YAML_DIR" = ".secrets/etcd"
+      "ALL_MASTER_IPV4" = join(",", hcloud_server.k8s_nodes_master.*.ipv4_address)
+      "K8S_EXTERNAL_DNS_NAME" = var.k8s_external_kubernetes_address
+      "K8S_ADMIN_FILE_LOCATION" = ".secrets/kubeadm_join/admin.conf"
+    }
+  }
 }
 
 

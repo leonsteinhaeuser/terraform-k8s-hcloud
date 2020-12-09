@@ -1,0 +1,26 @@
+MASTER_MACHINE_PREFIX=$1
+HOSTS_ENTRY="$2 $3"
+
+
+
+if [ "$HOSTNAME" != "$MASTER_MACHINE_PREFIX-1" ]; then
+    mkdir -p /root/.kube
+    cp /root/kubeadm_join/admin.conf /root/.kube/config
+
+    echo $HOSTS_ENTRY >> /etc/hosts
+    echo "added hostentry to hosts file"
+
+    cp -r /root/kubeadm_join/pki /etc/kubernetes
+
+    rm /etc/kubernetes/pki/
+
+    echo "machineprefix is master"
+    #COMMAND="$(cat /root/kubeadm_join/kubeadm_join) --control-plane"
+    #eval $COMMAND
+    bash /root/k8s_control_plane_join.txt
+
+    systemctl enable docker kubelet
+    kubectl label nodes $HOSTNAME node-role.kubernetes.io/master=master
+
+    sed -i "s/$HOSTS_ENTRY//g" /etc/hosts
+fi
