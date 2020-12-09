@@ -1,4 +1,4 @@
-# terraform-hcloud
+# terraform-k8s-hcloud
 
 This repository provides [terraform](https://www.terraform.io/) scripts that installs a kubernetes cluster in the [hetzner cloud](https://www.hetzner.com/cloud).
 
